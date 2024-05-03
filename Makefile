@@ -15,7 +15,8 @@ windows: $(GO_SOURCES)
 	GOOS=windows GOARCH=amd64 go build -o $(OUTPUT_DIR)/windows_amd64.exe ./...
 
 all: linux arm macos windows
-
+image: linux
+	docker build -t $(IMAGE_TAG) .
 clean:
 	rm -rf $(OUTPUT_DIR)
 	docker rmi $(IMAGE_TAG)
