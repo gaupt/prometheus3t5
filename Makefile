@@ -16,6 +16,5 @@ windows: $(GO_SOURCES)
 
 all: linux arm macos windows
 
-clean:
-                rm -rf $(OUTPUT_DIR)
+clean: ; rm -rf $(OUTPUT_DIR)
     docker rmi $(IMAGE_TAG)
