@@ -16,9 +16,6 @@ windows: $(GO_SOURCES)
 
 all: linux arm macos windows
 
-image: linux
-	docker build -t $(IMAGE_TAG) .
-
 clean:
 	rm -rf $(OUTPUT_DIR)
 	docker rmi $(IMAGE_TAG)
