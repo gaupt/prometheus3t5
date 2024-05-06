@@ -1,6 +1,6 @@
 OUTPUT_DIR := build
 GO_SOURCES := $(wildcard *.go)
-IMAGE_TAG := week3go
+IMAGE_TAG := <YOUR_IMAGE_TAG>
 
 linux: $(GO_SOURCES)
 	GOOS=linux GOARCH=amd64 go build -o $(OUTPUT_DIR)/linux_amd64 ./...
