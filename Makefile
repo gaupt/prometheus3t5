@@ -30,12 +30,12 @@ docker-test:
 
 # Видалення новостворених образів
 clean:
-	docker rmi $(PROJECT_NAME):linux_amd64 || true
-	docker rmi $(PROJECT_NAME):linux_arm64 || true
-	docker rmi $(PROJECT_NAME):darwin_amd64 || true
-	docker rmi $(PROJECT_NAME):darwin_arm64 || true
-	docker rmi $(PROJECT_NAME):windows_amd64 || true
-	docker rmi $(PROJECT_NAME):windows_arm64 || true
+	-docker rmi $(PROJECT_NAME):linux_amd64 || true
+	-docker rmi $(PROJECT_NAME):linux_arm64 || true
+	-docker rmi $(PROJECT_NAME):darwin_amd64 || true
+	-docker rmi $(PROJECT_NAME):darwin_arm64 || true
+	-docker rmi $(PROJECT_NAME):windows_amd64 || true
+	-docker rmi $(PROJECT_NAME):windows_arm64 || true
 	rm -f $(PROJECT_NAME)_linux_amd64 $(PROJECT_NAME)_linux_arm64 $(PROJECT_NAME)_darwin_amd64 $(PROJECT_NAME)_darwin_arm64 $(PROJECT_NAME)_windows_amd64.exe $(PROJECT_NAME)_windows_arm64.exe
 
 .PHONY: build linux macos windows docker-test clean
