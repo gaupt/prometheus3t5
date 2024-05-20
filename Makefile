@@ -1,21 +1,41 @@
-OUTPUT_DIR := build
-GO_SOURCES := $(wildcard *.go)
-IMAGE_TAG := <YOUR_IMAGE_TAG>
+# Makefile для збирання та тестування коду на різних платформах та архітектурах
 
-linux: $(GO_SOURCES)
-	GOOS=linux GOARCH=amd64 go build -o $(OUTPUT_DIR)/linux_amd64 ./...
+# Назва проекту
+PROJECT_NAME=myapp
 
-arm: $(GO_SOURCES)
-	GOOS=linux GOARCH=arm64 go build -o $(OUTPUT_DIR)/linux_arm64 ./...
+# Базовий образ для Docker
+BASE_IMAGE=quay.io/projectquay/golang:1.20
 
-macos: $(GO_SOURCES)
-	GOOS=darwin GOARCH=amd64 go build -o $(OUTPUT_DIR)/darwin_amd64 ./...
+# Функція для збирання бінарного файлу для вказаної платформи та архітектури
+build:
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(PROJECT_NAME)_$(GOOS)_$(GOARCH)
 
-windows: $(GO_SOURCES)
-	GOOS=windows GOARCH=amd64 go build -o $(OUTPUT_DIR)/windows_amd64.exe ./...
+# Цілі для різних платформ та архітектур
+linux:
+	$(MAKE) build GOOS=linux GOARCH=amd64
+	$(MAKE) build GOOS=linux GOARCH=arm64
 
-all: linux arm macos windows
+macos:
+	$(MAKE) build GOOS=darwin GOARCH=amd64
+	$(MAKE) build GOOS=darwin GOARCH=arm64
 
+windows:
+	$(MAKE) build GOOS=windows GOARCH=amd64
+	$(MAKE) build GOOS=windows GOARCH=arm64
+
+# Ціль для тестування коду в Docker
+docker-test:
+	docker build --build-arg GOOS=$(GOOS) --build-arg GOARCH=$(GOARCH) -t $(PROJECT_NAME):$(GOOS)_$(GOARCH) -f Dockerfile .
+	docker run --rm $(PROJECT_NAME):$(GOOS)_$(GOARCH)
+
+# Видалення новостворених образів
 clean:
-	rm -rf $(OUTPUT_DIR)
-	docker rmi $(IMAGE_TAG)
+	docker rmi $(PROJECT_NAME):linux_amd64 || true
+	docker rmi $(PROJECT_NAME):linux_arm64 || true
+	docker rmi $(PROJECT_NAME):darwin_amd64 || true
+	docker rmi $(PROJECT_NAME):darwin_arm64 || true
+	docker rmi $(PROJECT_NAME):windows_amd64 || true
+	docker rmi $(PROJECT_NAME):windows_arm64 || true
+	rm -f $(PROJECT_NAME)_linux_amd64 $(PROJECT_NAME)_linux_arm64 $(PROJECT_NAME)_darwin_amd64 $(PROJECT_NAME)_darwin_arm64 $(PROJECT_NAME)_windows_amd64.exe $(PROJECT_NAME)_windows_arm64.exe
+
+.PHONY: build linux macos windows docker-test clean

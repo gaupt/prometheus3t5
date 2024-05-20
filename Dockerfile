@@ -1,26 +1,26 @@
-FROM golang:1.20.14 AS builder
+# Використовуємо базовий образ quay.io/projectquay/golang:1.20
+FROM quay.io/projectquay/golang:1.20 AS builder
+
+# Аргументи для платформи та архітектури
+ARG GOOS
+ARG GOARCH
 
 # Копіюємо код у робочу директорію
 WORKDIR /app
 COPY . .
 
-# Збираємо код для Linux/AMD64
-RUN GOOS=linux GOARCH=amd64 go build -o myapp_linux_amd64 .
+# Збираємо код для вказаної платформи та архітектури
+RUN GOOS=${GOOS} GOARCH=${GOARCH} go build -o myapp .
 
-# Збираємо код для Linux/ARM64
-RUN GOOS=linux GOARCH=arm64 go build -o myapp_linux_arm64 .
+# Фінальний образ для тестування
+FROM quay.io/projectquay/golang:1.20
 
-# Збираємо код для macOS/AMD64
-RUN GOOS=darwin GOARCH=amd64 go build -o myapp_darwin_amd64 .
+# Копіюємо бінарний файл зі збірки
+COPY --from=builder /app/myapp /app/myapp
 
-# Збираємо код для Windows/AMD64
-RUN GOOS=windows GOARCH=amd64 go build -o myapp_windows_amd64.exe .
+# Налаштування змінної середовища для ОС та архітектури
+ENV GOOS=${GOOS}
+ENV GOARCH=${GOARCH}
 
-# Фінальний образ
-FROM alpine:latest
-
-# Додаємо бінарні файли зі збірки
-COPY --from=builder /app/myapp_linux_amd64 /app/myapp_linux_arm64 /app/myapp_darwin_amd64 /app/myapp_windows_amd64.exe /app/
-
-# Команда за замовчуванням
-CMD ["./myapp_linux_amd64"]
+# Запускаємо бінарний файл за замовчуванням
+CMD ["/app/myapp"]
