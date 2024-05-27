@@ -1,21 +1,20 @@
-OUTPUT_DIR := build
-GO_SOURCES := $(wildcard *.go)
-IMAGE_TAG := 
+APP=echo-server
+REGISTRY=gaupt
+VERSION=1.0.0
+#VERSION=v1.0.6-$(shell git rev-parse --short HEAD)
+TARGETOS=linux
+TARGETARCH=amd64 #arm64 
 
-linux: $(GO_SOURCES)
-	GOOS=linux GOARCH=amd64 go build -o $(OUTPUT_DIR)/linux_amd64 ./...
 
-arm: $(GO_SOURCES)
-	GOOS=linux GOARCH=arm64 go build -o $(OUTPUT_DIR)/linux_arm64 ./...
 
-macos: $(GO_SOURCES)
-	GOOS=darwin GOARCH=amd64 go build -o $(OUTPUT_DIR)/darwin_amd64 ./...
+image:
+	docker build . -t ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH}
 
-windows: $(GO_SOURCES)
-	GOOS=windows GOARCH=amd64 go build -o $(OUTPUT_DIR)/windows_amd64.exe ./...
+linux_image:
+	docker buildx build --platform linux/amd64 -f Dockerfile -t ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH} .
 
-all: linux arm macos windows
+push:
+	docker push ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH}
 
 clean:
-	rm -rf $(OUTPUT_DIR)
-	docker rmi $(IMAGE_TAG)
+	docker rmi ${REGISTRY}/${APP}:${VERSION}-${TARGETARCH}
